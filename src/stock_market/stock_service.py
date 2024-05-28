@@ -1,5 +1,14 @@
 import requests
-from .constants import VANTAGE_URL
+from .constants import (
+    VANTAGE_URL,
+    TIME_SERIES_KEY,
+    INFORMATION,
+    CLOSE_KEY,
+    SYMBOL_KEY,
+    OPEN_KEY,
+    HIGH_KEY,
+    LOW_KEY
+)
 from .schemas import Stock
 from .circuit_breaker import VantageCircuitBreaker
 import os
@@ -35,12 +44,14 @@ class StockService:
 
     def process_response(self, result: dict) -> Stock:
         try:
-            time_series = result.get('Time Series (Daily)')
-            if not time_series:
+            time_series = result.get(TIME_SERIES_KEY)
+            if not time_series and INFORMATION in result:
+                raise ValueError(str("Vantage: " + result.get(INFORMATION)))
+            elif not time_series:
                 raise ValueError("Time Series (Daily) not found in the response")
             last_two_days = sorted(time_series.keys(), reverse=True)[:2]
-            last_day_close = float(time_series[last_two_days[0]].get('4. close', 0))
-            before_last_day_close = float(time_series[last_two_days[1]].get('4. close', 0))
+            last_day_close = float(time_series[last_two_days[0]].get(CLOSE_KEY, 0))
+            before_last_day_close = float(time_series[last_two_days[1]].get(CLOSE_KEY, 0))
 
             if last_day_close == 0 or before_last_day_close == 0:
                 raise ValueError("Close price data is missing or invalid")
@@ -48,10 +59,10 @@ class StockService:
             variation = last_day_close - before_last_day_close
 
             return Stock(
-                symbol=result.get('Meta Data').get('2. Symbol'),
-                open_price=time_series.get(last_two_days[0]).get('1. open'),
-                higher_price=time_series.get(last_two_days[0]).get('2. high'),
-                lower_price=time_series.get(last_two_days[0]).get('3. low'),
+                symbol=result.get('Meta Data').get(SYMBOL_KEY),
+                open_price=time_series.get(last_two_days[0]).get(OPEN_KEY),
+                higher_price=time_series.get(last_two_days[0]).get(HIGH_KEY),
+                lower_price=time_series.get(last_two_days[0]).get(LOW_KEY),
                 variation=str(variation),
             )
         except Exception as e:
