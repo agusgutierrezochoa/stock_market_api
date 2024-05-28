@@ -1,5 +1,6 @@
 from pathlib import Path
 import logging
+import logging.config
 
 log_file_path = Path('/logs/api.log')
 
