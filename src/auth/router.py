@@ -1,20 +1,12 @@
 from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy.orm import Session
 from . import models, schemas, crud
-from .database import SessionLocal, engine
+from .database import engine, get_db
 from sqlalchemy.exc import IntegrityError
 
 models.Base.metadata.create_all(bind=engine)
 
 router = APIRouter()
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.post(

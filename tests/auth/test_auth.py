@@ -12,7 +12,7 @@ client = TestClient(app)
 
 @pytest.fixture
 def mock_db_session():
-    with patch("src.auth.router.get_db") as mock_db:
+    with patch("src.auth.database.get_db") as mock_db:
         yield mock_db
 
 
