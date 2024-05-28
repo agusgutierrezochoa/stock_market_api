@@ -1,0 +1,11 @@
+fastapi==0.104.0
+uvicorn==0.23.2
+ipdb==0.13.13
+pytest==7.4.3
+pydantic==2.5.2
+pytest-watch==4.2.0
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9
+python-dotenv==1.0.1
+alembic==1.13.1
+httpx==0.23.1
