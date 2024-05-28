@@ -26,13 +26,14 @@ services:
   test:
     build: .
     container_name: test
-    command: pytest-watch -- -vv
+    command: pytest
     volumes:
       - .:/app
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/stock_market_dbs
       - VANTAGE_API_KEY=X86NOH6II01P7R24
     depends_on:
+      - db
       - stock_market_api_service
 
 volumes:

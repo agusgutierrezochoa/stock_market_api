@@ -59,7 +59,7 @@ def test_process_response(stock_service, mock_response):
 
 def test_process_response_no_time_series(stock_service):
     mock_response = {"Meta Data": {"2. Symbol": "IBM"}}
-    with pytest.raises(ValueError, match='Time Series \(Daily\) not found in the response'):
+    with pytest.raises(ValueError, match=r"Time Series \(Daily\) not found in the response"):
         stock_service.process_response(mock_response)
 
 

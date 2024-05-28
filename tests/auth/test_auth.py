@@ -30,7 +30,7 @@ def test_create_user_success(mock_db_session):
     with patch("src.auth.crud.create_user", return_value=created_user) as mock_create_user, \
          patch.object(Limiter, "limiter"):
         response = client.post("/api/users/", json=user_data)
-    
+
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == created_user.dict()
     mock_create_user.assert_called_once()
