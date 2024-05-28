@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 models.Base.metadata.create_all(bind=engine)
 
-router = APIRouter()
+router = APIRouter(prefix="/api")
 
 
 @router.post(

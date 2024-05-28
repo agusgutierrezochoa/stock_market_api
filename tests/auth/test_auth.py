@@ -27,7 +27,7 @@ def test_create_user_success(mock_db_session):
     )
 
     with patch("src.auth.crud.create_user", return_value=created_user) as mock_create_user:
-        response = client.post("/users/", json=user_data)
+        response = client.post("/api/users/", json=user_data)
     
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == created_user.dict()
@@ -38,7 +38,7 @@ def test_create_user_conflict(mock_db_session):
     user_data = {"email": "test@example.com", "first_name": "Mick", "last_name": "Jagger"}
 
     with patch("src.auth.crud.create_user", side_effect=IntegrityError("", "", "")) as mock_create_user:
-        response = client.post("/users/", json=user_data)
+        response = client.post("/api/users/", json=user_data)
 
     assert response.status_code == status.HTTP_409_CONFLICT
     assert response.json()["detail"]["error"] == 409
@@ -51,7 +51,7 @@ def test_create_user_internal_server_error(mock_db_session):
     error_message = "Some unexpected error"
 
     with patch("src.auth.crud.create_user", side_effect=Exception(error_message)) as mock_create_user:
-        response = client.post("/users/", json=user_data)
+        response = client.post("/api/users/", json=user_data)
 
     assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
     assert response.json()["detail"]["error"] == 500

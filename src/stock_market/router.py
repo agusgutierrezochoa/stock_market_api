@@ -4,11 +4,11 @@ from .utils import auth_required
 from .stock_service import StockService
 import circuitbreaker
 
-router = APIRouter()
+router = APIRouter(prefix="/api")
 
 
 @router.get(
-    "/stock_market_info/",
+    "/stock/info/",
     response_model=StockMarketSchema,
     dependencies=[Depends(auth_required)],
     responses={
