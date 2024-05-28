@@ -1,8 +1,13 @@
-from fastapi import Depends, APIRouter, HTTPException
+from fastapi import Depends, APIRouter, HTTPException, Request
 from sqlalchemy.orm import Session
 from . import models, schemas, crud
 from .database import engine, get_db
 from sqlalchemy.exc import IntegrityError
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+router = APIRouter(prefix="/api")
+limiter = Limiter(key_func=get_remote_address)
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -18,7 +23,8 @@ router = APIRouter(prefix="/api")
         500: {"model": schemas.HTTPErrorResponse, "description": "Internal server error"},
     },
 )
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("1/minute")
+def create_user(request: Request, user: schemas.UserCreate, db: Session = Depends(get_db)):
     try:
         user = crud.create_user(db=db, user=user)
     except IntegrityError:
