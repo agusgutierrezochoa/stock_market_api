@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  db:
+    container_name: db
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: stock_market_dbs
+  stock_market_api_service:
+    build: .
+    container_name: stock_market_api_service
+    ports:
+      - "8080:8080"
+    stdin_open: true
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/stock_market_dbs
+    depends_on:
+      - db
+  test:
+    build: .
+    container_name: test
+    command: pytest-watch -- -vv
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/stock_market_dbs
+    depends_on:
+      - stock_market_api_service
+
+volumes:
+  postgres_data:
