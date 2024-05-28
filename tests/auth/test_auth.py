@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from src.main import app
 from src.auth import schemas
+from slowapi import Limiter
 
 client = TestClient(app)
 
@@ -26,7 +27,8 @@ def test_create_user_success(mock_db_session):
         api_key='1234'
     )
 
-    with patch("src.auth.crud.create_user", return_value=created_user) as mock_create_user:
+    with patch("src.auth.crud.create_user", return_value=created_user) as mock_create_user, \
+         patch.object(Limiter, "limiter"):
         response = client.post("/api/users/", json=user_data)
     
     assert response.status_code == status.HTTP_200_OK
@@ -37,7 +39,8 @@ def test_create_user_success(mock_db_session):
 def test_create_user_conflict(mock_db_session):
     user_data = {"email": "test@example.com", "first_name": "Mick", "last_name": "Jagger"}
 
-    with patch("src.auth.crud.create_user", side_effect=IntegrityError("", "", "")) as mock_create_user:
+    with patch("src.auth.crud.create_user", side_effect=IntegrityError("", "", "")) as mock_create_user, \
+         patch.object(Limiter, "limiter"):
         response = client.post("/api/users/", json=user_data)
 
     assert response.status_code == status.HTTP_409_CONFLICT
@@ -50,7 +53,8 @@ def test_create_user_internal_server_error(mock_db_session):
     user_data = {"email": "test@example.com", "first_name": "Mick", "last_name": "Jagger"}
     error_message = "Some unexpected error"
 
-    with patch("src.auth.crud.create_user", side_effect=Exception(error_message)) as mock_create_user:
+    with patch("src.auth.crud.create_user", side_effect=Exception(error_message)) as mock_create_user, \
+         patch.object(Limiter, "limiter"):
         response = client.post("/api/users/", json=user_data)
 
     assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
